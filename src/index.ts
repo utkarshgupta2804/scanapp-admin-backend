@@ -947,6 +947,53 @@ async function processQRGeneration(jobId: string, params: any) {
     }
 }
 
+// Get QR statistics
+app.get('/api/qr-stats', async (req: Request, res: Response): Promise<void> => {
+    try {
+        // Get all active batches
+        const batches = await QRBatch.find({ isActive: true });
+
+        // Calculate statistics
+        let totalQRCodes = 0;
+        let scannedQRCodes = 0;
+        let unscannedQRCodes = 0;
+
+        batches.forEach(batch => {
+            totalQRCodes += batch.qrCodes.length;
+            batch.qrCodes.forEach(qr => {
+                if (qr.isScanned) {
+                    scannedQRCodes++;
+                } else {
+                    unscannedQRCodes++;
+                }
+            });
+        });
+
+        const scanRate = totalQRCodes > 0 
+            ? ((scannedQRCodes / totalQRCodes) * 100).toFixed(2) 
+            : "0.00";
+
+        res.status(200).json({
+            success: true,
+            data: {
+                totalBatches: batches.length,
+                totalQRCodes,
+                scannedQRCodes,
+                unscannedQRCodes,
+                scanRate: `${scanRate}%`
+            }
+        });
+
+    } catch (error: any) {
+        console.error('Error fetching QR statistics:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error',
+            error: error.message
+        });
+    }
+});
+
 // Error handling middleware
 app.use((err: Error, req: Request, res: Response, next: any) => {
     console.error(err.stack);
