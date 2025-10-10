@@ -6,7 +6,7 @@ import mongoose, { Document, Schema } from "mongoose";
 import dotenv from "dotenv";
 import { Scheme, IScheme } from "./models/scheme";
 import Customer from "./models/customer";
-import { QRBatch,IQRItem } from "./models/qrs";
+import { QRBatch, IQRItem } from "./models/qrs";
 import multer from "multer";
 import path from 'path';
 import fs from 'fs';
@@ -58,13 +58,13 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(
     cors({
-      credentials: true,
-      origin: process.env.CLIENT_URL, // just pass it as a string
-      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+        credentials: true,
+        origin: process.env.CLIENT_URL, // just pass it as a string
+        methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
     })
-  );
-  
+);
+
 
 // Connect to MongoDB
 const connectDB = async (): Promise<void> => {
@@ -508,7 +508,7 @@ function generateQRId(): string {
 }
 
 // Generate QR codes (both single and bulk) - UPDATED
-app.post('/api/generate-qr', async (req: Request, res: Response): Promise<void> => { 
+app.post('/api/generate-qr', async (req: Request, res: Response): Promise<void> => {
     try {
         const {
             points,
@@ -566,7 +566,7 @@ app.post('/api/generate-qr', async (req: Request, res: Response): Promise<void> 
 
         const [width, height] = size.split('x').map(Number);
         const maxSize = ['svg'].includes(format.toLowerCase()) ? 1000000 : 1000;
-        
+
         if (width < 10 || height < 10 || width > maxSize || height > maxSize) {
             res.status(400).json({
                 success: false,
@@ -604,9 +604,9 @@ app.post('/api/generate-qr', async (req: Request, res: Response): Promise<void> 
         for (let i = 0; i < qty; i++) {
             try {
                 const qrId = generateQRId();
-                
+
                 // Create QR data with QR ID AND BATCH ID included - UPDATED
-                const qrData = `URL: ${url}\nQR ID: ${qrId}\nBatch ID: ${batchId}\nPoints: ${points}`;
+                const qrData = `${url}\n QR ID: ${qrId}\nBatch ID: ${batchId}\nPoints: ${points}`;
                 const encodedData = encodeURIComponent(qrData);
 
                 const goQRUrl = `https://api.qrserver.com/v1/create-qr-code/` +
@@ -649,7 +649,7 @@ app.post('/api/generate-qr', async (req: Request, res: Response): Promise<void> 
 
         // Save batch to database - UPDATED batch data format
         const batchQRData = `Batch ID: ${batchId}\nPoints: ${points}\nURL: ${url}`;
-        
+
         const newBatch = await QRBatch.create({
             batchId,
             qrData: batchQRData, // Updated format for batch display
@@ -698,7 +698,7 @@ app.get('/api/qr-batches', async (req: Request, res: Response): Promise<void> =>
         sort[sortBy] = sortOrder;
 
         const totalBatches = await QRBatch.countDocuments({ isActive: true });
-        
+
         const batches = await QRBatch.find({ isActive: true })
             .sort(sort)
             .skip(skip)
@@ -831,7 +831,7 @@ app.post('/api/generate-bulk-qr-async', async (req: Request, res: Response): Pro
         }
 
         const jobId = generateJobId();
-        
+
         jobStorage.set(jobId, {
             id: jobId,
             status: 'pending',
@@ -877,11 +877,11 @@ async function processQRGeneration(jobId: string, params: any) {
         for (let i = 0; i < quantity; i++) {
             try {
                 const qrId = generateQRId();
-                
+
                 // Create QR data with QR ID AND BATCH ID included - UPDATED
                 const qrData = `QR ID: ${qrId}\nBatch ID: ${batchId}\nPoints: ${points}\nURL: ${url}`;
                 const encodedData = encodeURIComponent(qrData);
-                
+
                 const goQRUrl = `https://api.qrserver.com/v1/create-qr-code/` +
                     `?data=${encodedData}&size=${size}&format=${format.toLowerCase()}` +
                     `&color=0-0-0&bgcolor=255-255-255&ecc=L&margin=1&qzone=4`;
@@ -909,7 +909,7 @@ async function processQRGeneration(jobId: string, params: any) {
 
         // Save batch to database - UPDATED batch data format
         const batchQRData = `Batch ID: ${batchId}\nPoints: ${points}\nURL: ${url}`;
-        
+
         const newBatch = await QRBatch.create({
             batchId,
             qrData: batchQRData, // Updated format for batch display
@@ -969,8 +969,8 @@ app.get('/api/qr-stats', async (req: Request, res: Response): Promise<void> => {
             });
         });
 
-        const scanRate = totalQRCodes > 0 
-            ? ((scannedQRCodes / totalQRCodes) * 100).toFixed(2) 
+        const scanRate = totalQRCodes > 0
+            ? ((scannedQRCodes / totalQRCodes) * 100).toFixed(2)
             : "0.00";
 
         res.status(200).json({
