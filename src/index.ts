@@ -606,7 +606,8 @@ app.post('/api/generate-qr', async (req: Request, res: Response): Promise<void> 
                 const qrId = generateQRId();
 
                 // Create QR data with QR ID AND BATCH ID included - UPDATED
-                const qrData = `${url}\n QR ID: ${qrId}\nBatch ID: ${batchId}\nPoints: ${points}`;
+                const qrData = `${url}
+  QR ID: ${qrId}\nBatch ID: ${batchId}\nPoints: ${points}`;
                 const encodedData = encodeURIComponent(qrData);
 
                 const goQRUrl = `https://api.qrserver.com/v1/create-qr-code/` +
